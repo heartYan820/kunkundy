@@ -1,0 +1,47 @@
+{
+  "name": "pc.vue.demo",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:app1": "vite",
+    "dev:ecmweb": "pnpm -C ecmweb dev",
+    "dev:simpleweb": "pnpm -C simpleweb dev",
+    "dev:all": "concurrently -n app1,ecmweb,simpleweb -c blue,green,red \"pnpm dev:app1\" \"pnpm dev:ecmweb\" \"pnpm dev:simpleweb\"",
+    "verify:entry": "node scripts/entry-check.mjs",
+    "fix:entry": "node scripts/entry-check.mjs --fix",
+    "verify:migration": "node scripts/check-migration.mjs",
+    "fix:migration": "echo \"迁移残留修复需要逐个文件对照源项目 E:/WorkSpace/ECMWeb/，请手动处理；脚本仅做检测\" && exit 1",
+    "build": "vite build",
+    "build:app1": "vite build",
+    "build:ecmweb": "pnpm -C ecmweb build",
+    "build:simpleweb": "pnpm -C simpleweb build",
+    "preview": "vite preview",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:dev:app1": "tauri dev",
+    "tauri:dev:ecmweb": "tauri dev --config src-tauri/tauri.ecmweb.conf.json",
+    "tauri:build": "tauri build",
+    "tauri:build:app1": "tauri build",
+    "tauri:build:ecmweb": "tauri build --config src-tauri/tauri.ecmweb.conf.json",
+    "tauri:build:remote": "tauri build --config src-tauri/tauri.desktop.remote.conf.json",
+    "android:dev": "tauri android dev",
+    "android:build": "tauri android build",
+    "ios:dev": "tauri ios dev",
+    "ios:build": "tauri ios build"
+  },
+  "dependencies": {
+    "@element-plus/icons-vue": "^2.3.2",
+    "element-plus": "^2.14.5",
+    "pinia": "^4.0.3",
+    "vue": "^3.5.41",
+    "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.0.0",
+    "@vitejs/plugin-vue": "^5.2.4",
+    "concurrently": "^10.0.6",
+    "vite": "^6.4.3"
+  }
+}

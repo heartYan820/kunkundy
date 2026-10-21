@@ -1,0 +1,1024 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"
+    />
+    <title>H5 唤起抖音 - 调试页</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        -webkit-tap-highlight-color: transparent;
+      }
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue",
+          sans-serif;
+        background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+        min-height: 100vh;
+        padding: 40px 20px 60px;
+        color: #fff;
+      }
+      .container {
+        max-width: 480px;
+        margin: 0 auto;
+      }
+      h1 {
+        font-size: 26px;
+        text-align: center;
+        margin-bottom: 8px;
+        background: linear-gradient(90deg, #ff0050, #00f2ea);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .subtitle {
+        text-align: center;
+        color: #bbb;
+        font-size: 14px;
+        margin-bottom: 32px;
+      }
+      .card {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 16px;
+        backdrop-filter: blur(10px);
+      }
+      .card.is-primary {
+        box-shadow: 0 0 0 2px rgba(0, 242, 234, 0.35);
+      }
+      .badge {
+        display: inline-block;
+        margin-left: 6px;
+        padding: 2px 9px;
+        border-radius: 10px;
+        background: #00f2ea;
+        color: #161823;
+        font-size: 12px;
+        font-weight: 600;
+        vertical-align: middle;
+      }
+      .seq-list {
+        margin-top: 12px;
+      }
+      .seq-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 10px;
+        margin-bottom: 6px;
+        border-radius: 8px;
+        background: rgba(0, 0, 0, 0.25);
+        font-size: 13px;
+      }
+      .seq-item.is-target {
+        box-shadow: inset 0 0 0 1px rgba(0, 242, 234, 0.5);
+      }
+      .seq-index {
+        width: 18px;
+        flex: 0 0 auto;
+        color: #00f2ea;
+      }
+      .seq-name {
+        flex: 0 0 auto;
+      }
+      .seq-item.is-target .seq-name {
+        color: #00f2ea;
+        font-weight: 600;
+      }
+      .seq-id {
+        flex: 1;
+        overflow: hidden;
+        color: rgba(255, 255, 255, 0.45);
+        font-family: ui-monospace, Consolas, monospace;
+        font-size: 12px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+      .btn.seq-btn {
+        width: auto;
+        flex: 0 0 auto;
+        padding: 4px 12px;
+        margin: 0;
+        font-size: 12px;
+      }
+      .app-switch {
+        display: flex;
+        gap: 10px;
+        margin: 10px 0;
+      }
+      .app-opt {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 14px;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 10px;
+        background: rgba(0, 0, 0, 0.3);
+        font-size: 13px;
+        cursor: pointer;
+      }
+      .app-opt:has(input:checked) {
+        border-color: #00f2ea;
+        color: #00f2ea;
+      }
+      .app-tip {
+        color: rgba(255, 255, 255, 0.45);
+        font-size: 12px;
+        line-height: 1.6;
+      }
+      .chk {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        margin: 10px 0 12px;
+        color: rgba(255, 255, 255, 0.75);
+        font-size: 12px;
+        line-height: 1.5;
+        cursor: pointer;
+      }
+      .chk input {
+        margin-top: 2px;
+        flex: 0 0 auto;
+      }
+      .card h3 {
+        font-size: 17px;
+        margin-bottom: 6px;
+      }
+      .card p {
+        font-size: 13px;
+        color: #aaa;
+        margin-bottom: 14px;
+        line-height: 1.5;
+      }
+      .btn {
+        display: block;
+        width: 100%;
+        padding: 14px;
+        border: none;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        background: linear-gradient(90deg, #ff0050, #ff3a75);
+        color: #fff;
+        transition:
+          transform 0.15s,
+          opacity 0.15s;
+      }
+      .btn:active {
+        transform: scale(0.97);
+        opacity: 0.9;
+      }
+      .btn.secondary {
+        background: linear-gradient(90deg, #00f2ea, #00b3c7);
+        color: #0a0a23;
+      }
+      .btn.ghost {
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: #fff;
+        margin-top: 10px;
+      }
+      .field {
+        display: block;
+        width: 100%;
+        padding: 12px 14px;
+        margin-bottom: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 10px;
+        background: rgba(0, 0, 0, 0.3);
+        color: #fff;
+        font-size: 14px;
+        font-family: inherit;
+        outline: none;
+      }
+      .field:focus {
+        border-color: #00f2ea;
+      }
+      .field::placeholder {
+        color: #7c8395;
+      }
+      .hint {
+        margin-top: 10px;
+        font-size: 12px;
+        line-height: 1.6;
+        color: #00f2ea;
+      }
+      .hint.err {
+        color: #ff6b8a;
+      }
+      .code-box {
+        background: rgba(0, 0, 0, 0.35);
+        border-radius: 8px;
+        padding: 12px;
+        margin-top: 12px;
+        font-family: "SF Mono", Menlo, Consolas, monospace;
+        font-size: 12px;
+        color: #9ef0ff;
+        overflow-x: auto;
+        line-height: 1.6;
+        white-space: pre;
+      }
+      .log-box {
+        max-height: 280px;
+        overflow: auto;
+        white-space: pre-wrap;
+        word-break: break-all;
+      }
+      .env-tag {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        margin-right: 4px;
+        margin-bottom: 4px;
+        background: rgba(255, 255, 255, 0.12);
+      }
+      .env-tag.on {
+        background: rgba(0, 242, 234, 0.25);
+        color: #00f2ea;
+      }
+      .tips {
+        margin-top: 24px;
+        padding: 16px;
+        background: rgba(255, 0, 80, 0.1);
+        border-left: 3px solid #ff0050;
+        border-radius: 8px;
+        font-size: 13px;
+        line-height: 1.7;
+        color: #ffd1dd;
+      }
+      .tips strong {
+        color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🎵 H5 唤起抖音</h1>
+      <p class="subtitle">填入参数后点击按钮，测试唤起效果</p>
+
+      <!-- 当前环境识别 -->
+      <div class="card">
+        <h3>📍 当前环境识别</h3>
+        <div id="env-box" style="margin-top: 10px"></div>
+      </div>
+
+      <!-- 列表播放：一条 intent 带 gids 列表 -->
+      <div class="card is-primary">
+        <h3>
+          📋 列表播放（垫片模式）<span class="badge">已找到正确入口</span>
+        </h3>
+        <p>
+          不用再连发多条了 —— 抖音有个<b>未公开</b>入口，<b>一条 intent</b>
+          就能带上整个列表。 之前只播 1 条，是因为入口用错了（<code
+            >aweme/detail</code
+          >
+          只能开单条）。
+        </p>
+        <div class="code-box">
+          snssdk1128://aweme/push_detail?item_id=&lt;首条&gt;&amp;hot=feed&amp;cold=feed&amp;gids=&lt;ID1,ID2,...,你的ID&gt;
+        </div>
+        <p>
+          <b>gids</b> 是整串视频 ID（逗号分隔），<b>hot=feed&amp;cold=feed</b>
+          让客户端按 feed 形态播放，所以能上下滑。直接填整个列表即可：<b
+            >第一条会自动填进下面的「打开指定视频」当目标</b
+          >；你的视频不在列表里时，也会自动补到最后。
+        </p>
+        <input
+          id="inp-fillers"
+          class="field"
+          type="text"
+          autocomplete="off"
+          placeholder="整个播放列表，逗号分隔（第一条自动作为目标视频）"
+        />
+        <button class="btn" id="btn-sequence">打开抖音并按列表播放</button>
+        <div id="hint-sequence" class="hint"></div>
+        <div id="seq-list" class="seq-list"></div>
+        <div class="code-box" id="code-sequence"></div>
+      </div>
+
+      <!-- 打开指定视频 -->
+      <div class="card">
+        <h3>🎬 打开指定视频</h3>
+        <p>
+          这里是<b>单条</b>（独立页，不能上滑）；要连续刷多条请用上面的「列表播放」，
+          列表里第一条会自动填到这里
+        </p>
+        <input
+          id="inp-video"
+          class="field"
+          type="text"
+          autocomplete="off"
+          placeholder="视频 ID / 分享链接 / 短链 / 分享口令"
+        />
+        <button class="btn secondary" id="btn-video">唤起 App 打开视频</button>
+        <button class="btn ghost" id="btn-video-web">网页版打开视频</button>
+        <button
+          class="btn ghost"
+          id="btn-video-home"
+          title="推荐流：抖音不支持指定视频，要打开指定视频请用上面的按钮"
+        >
+          打开 App 推荐流
+        </button>
+        <div id="hint-video" class="hint"></div>
+        <div class="code-box" id="code-video"></div>
+      </div>
+
+      <!-- 目标 App -->
+      <div class="card">
+        <h3>📱 目标 App</h3>
+        <div class="app-switch">
+          <label class="app-opt">
+            <input type="radio" name="app" value="douyin" checked />
+            <span>抖音</span>
+          </label>
+          <label class="app-opt">
+            <input type="radio" name="app" value="lite" />
+            <span>抖音极速版</span>
+          </label>
+        </div>
+        <p class="app-tip">
+          极速版：包名 com.ss.android.ugc.aweme.lite，scheme
+          <b>snssdk2329://</b>（和抖音的 snssdk1128
+          不一样）。真机上若不跳转，可用 URL
+          参数覆盖实测：?litePkg=xxx&amp;liteScheme=xxx
+        </p>
+      </div>
+
+      <!-- 打开用户主页（主推：可滑动，且内容全是 TA 的） -->
+      <div class="card is-primary">
+        <h3>👤 打开用户主页 <span class="badge">推荐</span></h3>
+        <p>
+          进主页后点开任意视频，可上下滑看 TA 的全部作品 ——
+          官方支持的滑动流，内容全是 TA 的。 可填
+          sec_uid，也可直接粘贴主页链接或分享口令
+        </p>
+        <input
+          id="inp-user"
+          class="field"
+          type="text"
+          autocomplete="off"
+          placeholder="sec_uid / 主页链接 / 分享口令"
+        />
+        <button class="btn" id="btn-user">唤起 App 打开主页</button>
+        <button class="btn ghost" id="btn-user-web">网页版打开主页</button>
+        <div id="hint-user" class="hint"></div>
+        <div class="code-box" id="code-user"></div>
+      </div>
+      <!-- 真正在抖音里存在的「视频列表」：话题页 / 音乐页，本身就是可上下滑的流 -->
+      <div class="card is-primary">
+        <h3>🎞 可滑动的视频流 <span class="badge">推荐</span></h3>
+        <p>
+          想让多条视频能上下滑播，它们在抖音里必须本来就是一个列表。
+          <b>做法</b>：建一个只有你在用的话题（如
+          #我的专属标签），把要播的视频都带上这个话题，
+          打开话题页就是这几条视频的滑动流。音乐页同理（同一个配乐下的视频）。
+        </p>
+        <input
+          id="inp-stream"
+          class="field"
+          type="text"
+          autocomplete="off"
+          placeholder="话题 ID 或 音乐 ID"
+        />
+        <button class="btn secondary" id="btn-challenge">打开话题页</button>
+        <button class="btn ghost" id="btn-music">打开音乐页</button>
+        <div id="hint-stream" class="hint"></div>
+        <div class="code-box" id="code-stream"></div>
+      </div>
+
+      <!-- 调试日志：唤起失败时看这里 -->
+      <div class="card">
+        <h3>🛠 调试日志</h3>
+        <p>唤起过程每一步都记在这里，打不开时把这段内容发出来</p>
+        <div class="code-box log-box" id="debug-box"></div>
+        <div id="hint-debug" class="hint"></div>
+        <button class="btn ghost" id="btn-copy-debug">复制日志</button>
+      </div>
+
+      <!-- 使用说明 -->
+      <div class="tips">
+        <strong>⚠️ 使用注意事项：</strong><br />
+        1.
+        必须在<strong>用户点击事件</strong>中直接调用，不可放在异步回调里（iOS会拦截）；<br />
+        2.
+        在<strong>微信/QQ/企微</strong>中会自动弹出"右上角在浏览器打开"的引导蒙层；<br />
+        3. 未安装抖音时，Android 通过 intent 自动降级到网页版，iOS
+        超时后跳网页版；<br />
+        4. 视频ID可从抖音分享链接的
+        <code>/video/数字ID</code> 提取，粘贴长链会自动提取；短链（如
+        <code>douyin.com/xxxx</code>）需要服务端解析，前端拿不到；<br />
+        5. 参数也可以通过地址栏预填：<code>?userId=xxx&amp;videoId=xxx</code>。
+      </div>
+    </div>
+
+    <!-- 引入工具脚本（与本页同目录，public 下原样部署） -->
+    <script src="./douyinOpener.js"></script>
+    <script>
+      // ============ 调试日志 ============
+      var logs = [];
+
+      function pad(n) {
+        return n < 10 ? "0" + n : String(n);
+      }
+
+      function log(msg) {
+        var now = new Date();
+        logs.push(
+          pad(now.getHours()) +
+            ":" +
+            pad(now.getMinutes()) +
+            ":" +
+            pad(now.getSeconds()) +
+            "  " +
+            msg,
+        );
+        var box = document.getElementById("debug-box");
+        if (box) box.textContent = logs.join("\n");
+      }
+
+      function $(id) {
+        return document.getElementById(id);
+      }
+
+      function val(id) {
+        return $(id).value.trim();
+      }
+
+      function setHint(id, text, isError) {
+        var el = $(id);
+        el.textContent = text || "";
+        el.className = isError ? "hint err" : "hint";
+      }
+
+      function queryParam(name) {
+        var matched = location.search.match(
+          new RegExp("[?&]" + name + "=([^&#]*)"),
+        );
+        return matched ? decodeURIComponent(matched[1]) : "";
+      }
+
+      /**
+       * 识别输入：纯ID / 长链 / 短链 / 抖音分享口令
+       * 返回 { kind: "id" | "short" | "unknown" | "empty", id, url, note }
+       *
+       * 短链（v.douyin.com/xxx）前端解析不出 ID（需要跟跳转），
+       * 所以不自己拼 scheme，而是直接跳抖音官方落地页，由它唤起 App。
+       */
+      /**
+       * 识别用户主页输入：sec_uid / 主页链接 / 分享口令
+       * 主页链接形如 https://www.douyin.com/user/MS4wLjABAAAA...
+       */
+      function resolveUserInput(raw) {
+        if (!raw) return { kind: "empty" };
+
+        // 分享口令里夹着的短链
+        var short = raw.match(/https?:\/\/v\.douyin\.com\/[A-Za-z0-9_\-\/]+/i);
+        if (short) {
+          return {
+            kind: "short",
+            url: short[0],
+            note: "识别为抖音分享短链 → 交给抖音官方落地页唤起 App",
+          };
+        }
+
+        // 主页链接：取 /user/<sec_uid>
+        var matched = raw.match(/\/user\/([A-Za-z0-9_\-]{20,})/);
+        if (matched)
+          return {
+            kind: "id",
+            id: matched[1],
+            note: "已从主页链接提取 sec_uid",
+          };
+
+        if (/^https?:\/\//i.test(raw)) return { kind: "unknown", note: "" };
+        return { kind: "id", id: raw, note: "" };
+      }
+
+      function resolveVideoInput(raw) {
+        if (!raw) return { kind: "empty" };
+
+        // 分享口令是一整段文案，里面夹着短链，先把它抠出来
+        var short = raw.match(/https?:\/\/v\.douyin\.com\/[A-Za-z0-9_\-\/]+/i);
+        if (short) {
+          return {
+            kind: "short",
+            url: short[0],
+            note: "识别为抖音分享短链 → 交给抖音官方落地页唤起 App",
+          };
+        }
+
+        var matched = raw.match(/\/video\/(\d+)/);
+        if (matched)
+          return {
+            kind: "id",
+            id: matched[1],
+            note: "已从分享链接提取视频 ID",
+          };
+
+        if (/^https?:\/\//i.test(raw)) return { kind: "unknown", note: "" };
+        return { kind: "id", id: raw, note: "" };
+      }
+
+      // 抖音自己的落地页会用官方参数唤起 App 并定位到该视频，
+      // 比我们拼 scheme 更接近「以这条视频为起点继续刷」的体验
+      function gotoOfficialLanding(url) {
+        log("跳转抖音官方落地页 → " + url);
+        window.location.href = url;
+      }
+
+      // 当前选择的 App：douyin / lite
+      function currentApp() {
+        var el = document.querySelector('input[name="app"]:checked');
+        return el && el.value === "lite" ? "lite" : "douyin";
+      }
+
+      // 代码框里显示的目标 App 参数
+      function appArg() {
+        return currentApp() === "lite" ? ', { app: "lite" }' : "";
+      }
+
+      // 所有唤起调用都要带上目标 App
+      function appOpts(extra) {
+        var o = { app: currentApp() };
+        if (extra) {
+          for (var k in extra) o[k] = extra[k];
+        }
+        return o;
+      }
+
+      // 代码提示框跟着输入实时更新，方便确认实际会调用什么
+      function syncCode() {
+        var ur = resolveUserInput(val("inp-user"));
+        var r = resolveVideoInput(val("inp-video"));
+        $("code-user").textContent =
+          ur.kind === "short"
+            ? 'window.location.href = "' + ur.url + '"; // 官方落地页'
+            : "DouyinOpener.openUser(" +
+              JSON.stringify(ur.id || "") +
+              appArg() +
+              ");";
+        $("code-video").textContent =
+          (r.kind === "short"
+            ? 'window.location.href = "' + r.url + '"; // 官方落地页'
+            : "DouyinOpener.openVideo(" +
+              JSON.stringify(r.id || "") +
+              appArg() +
+              ");") +
+          "\n" +
+          "DouyinOpener.openHome(); // 推荐流，不支持指定视频";
+        var sid = val("inp-stream");
+        $("code-stream").textContent = sid
+          ? 'DouyinOpener.openCustom("challenge/detail/' +
+            sid +
+            '?refer=web", null' +
+            appArg() +
+            ");"
+          : "";
+      }
+
+      function requireStreamId(label) {
+        var id = val("inp-stream");
+        if (!id) {
+          setHint("hint-stream", "请先填写" + label + " ID", true);
+          return null;
+        }
+        setHint("hint-stream", "");
+        return id;
+      }
+
+      // ============ 列表播放（垫片模式） ============
+      // 抖音有一个未公开入口：aweme/push_detail 用 gids 一次带上整串视频 ID，
+      // 配合 hot=feed&cold=feed 按 feed 形态播放，因此可以上下滑。
+      // 先用几条「垫片」把目标视频顶到列表末尾。
+      // 抖音作品ID是 15~22 位纯数字，其它（比如少一位的手抄串）直接丢掉
+      function isVideoId(id) {
+        return /^\d{15,22}$/.test(id || "");
+      }
+
+      function buildSequence(silent) {
+        var fillers = val("inp-fillers")
+          .split(/[\s,，;；、]+/)
+          .filter(Boolean)
+          .map(function (raw) {
+            return resolveVideoInput(raw).id;
+          })
+          .filter(isVideoId);
+
+        var target = resolveVideoInput(val("inp-video")).id;
+        if (!target) {
+          if (!silent) {
+            setHint(
+              "hint-sequence",
+              "请先在上方「打开指定视频」里填好你的视频 ID",
+              true,
+            );
+          }
+          return null;
+        }
+        if (!silent) setHint("hint-sequence", "");
+
+        // 去重：列表里已经包含目标视频就保持你填的顺序；没包含才补到最后
+        var ids = [];
+        fillers.forEach(function (id) {
+          if (ids.indexOf(id) === -1) ids.push(id);
+        });
+        if (ids.indexOf(target) === -1) ids.push(target);
+        return { fillers: fillers, ids: ids, target: target };
+      }
+
+      // 列表里第一条有效 ID：给「打开指定视频」做默认值
+      function firstListId(raw) {
+        var first = "";
+        (raw || "")
+          .split(/[\s,，;；、]+/)
+          .filter(Boolean)
+          .some(function (item) {
+            var id = resolveVideoInput(item).id;
+            if (isVideoId(id)) {
+              first = id;
+              return true;
+            }
+            return false;
+          });
+        return first;
+      }
+
+      function renderSequence(seq) {
+        var box = $("seq-list");
+        box.textContent = "";
+        var targetIdx = seq.ids.indexOf(seq.target);
+        var pad = 0;
+
+        seq.ids.forEach(function (id, i) {
+          var isTarget = i === targetIdx;
+          var row = document.createElement("div");
+          row.className = isTarget ? "seq-item is-target" : "seq-item";
+
+          var idx = document.createElement("span");
+          idx.className = "seq-index";
+          idx.textContent = String(i + 1);
+
+          var name = document.createElement("span");
+          name.className = "seq-name";
+          name.textContent = isTarget ? "本次任务" : "垫片视频 " + ++pad;
+
+          var idEl = document.createElement("span");
+          idEl.className = "seq-id";
+          idEl.textContent = id;
+
+          var btn = document.createElement("button");
+          btn.className = "btn ghost seq-btn";
+          btn.textContent = "打开";
+          btn.addEventListener("click", function () {
+            log("手动打开第 " + (i + 1) + " 条 → " + id);
+            DouyinOpener.openVideo(id, appOpts());
+          });
+
+          row.appendChild(idx);
+          row.appendChild(name);
+          row.appendChild(idEl);
+          row.appendChild(btn);
+          box.appendChild(row);
+        });
+
+        $("code-sequence").textContent =
+          "DouyinOpener.openPlaylist(" +
+          JSON.stringify(seq.ids) +
+          appArg() +
+          ");";
+      }
+
+      // 发射记录写 localStorage：跳走后回到页面还能看到"到底发出去了几条"
+      var SEQ_KEY = "douyin_seq_last";
+
+      function saveRecord(rec) {
+        try {
+          localStorage.setItem(SEQ_KEY, JSON.stringify(rec));
+        } catch (e) {}
+      }
+
+      function readRecord() {
+        try {
+          return JSON.parse(localStorage.getItem(SEQ_KEY) || "null");
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function showLastRecord() {
+        var r = readRecord();
+        if (!r) return;
+        var txt =
+          "上次列表播放：已发 1 条 intent，携带 " +
+          r.total +
+          " 条视频（末条为目标视频）";
+        log(txt);
+        setHint("hint-sequence", txt, false);
+      }
+
+      /**
+       * 列表播放 = 一条 intent 带整个 gids 列表（aweme/push_detail）
+       * 不是连发多条 —— 连发只会互相覆盖（已两次实测）。
+       */
+      function playSequence(ids, options) {
+        saveRecord({ total: ids.length, start: Date.now(), end: Date.now() });
+        log(
+          "列表播放：一条 intent 携带 " +
+            ids.length +
+            " 条（item_id=" +
+            ids[0] +
+            "，末条为目标 " +
+            ids[ids.length - 1] +
+            "）",
+        );
+        setHint(
+          "hint-sequence",
+          "已发出 1 条 intent（带 " +
+            ids.length +
+            " 个视频）；App 里顺序不对时，用下面「打开」逐条点",
+        );
+        DouyinOpener.openPlaylist(ids, options);
+      }
+
+      function requireUserInput() {
+        var raw = val("inp-user");
+        if (!raw) {
+          setHint("hint-user", "请先填写 sec_uid 或粘贴主页链接/口令", true);
+          return null;
+        }
+        var r = resolveUserInput(raw);
+        if (r.kind === "unknown") {
+          setHint(
+            "hint-user",
+            "识别不出主页，请填 sec_uid 或粘贴抖音主页链接",
+            true,
+          );
+          return null;
+        }
+        setHint("hint-user", r.note);
+        return r;
+      }
+
+      function requireVideoInput() {
+        var raw = val("inp-video");
+        if (!raw) {
+          setHint("hint-video", "请先填写视频 ID 或粘贴分享链接/口令", true);
+          return null;
+        }
+        var r = resolveVideoInput(raw);
+        if (r.kind === "unknown") {
+          setHint(
+            "hint-video",
+            "识别不出视频，请填 ID 或粘贴抖音分享链接",
+            true,
+          );
+          return null;
+        }
+        setHint("hint-video", r.note);
+        return r;
+      }
+
+      ["inp-user", "inp-video"].forEach(function (id) {
+        $(id).addEventListener("input", function () {
+          setHint(id === "inp-user" ? "hint-user" : "hint-video", "");
+          syncCode();
+        });
+      });
+
+      $("btn-copy-debug").addEventListener("click", function () {
+        var text = logs.join("\n");
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(
+            function () {
+              setHint("hint-debug", "日志已复制");
+            },
+            function () {
+              setHint("hint-debug", "复制失败，请手动长按选中", true);
+            },
+          );
+        } else {
+          setHint("hint-debug", "当前浏览器不支持一键复制，请手动选中", true);
+        }
+      });
+
+      // 地址栏预填：?userId=xxx&videoId=xxx
+      var presetUser = queryParam("userId");
+      var presetVideo = queryParam("videoId");
+      if (presetUser) $("inp-user").value = presetUser;
+      if (presetVideo) $("inp-video").value = presetVideo;
+      syncCode();
+
+      log("UA: " + navigator.userAgent);
+      log("页面地址: " + location.href);
+
+      // 脚本没加载时，按钮点了会毫无反应——这里必须明确说出来
+      if (typeof DouyinOpener === "undefined") {
+        log(
+          "✗ douyinOpener.js 未加载：所有按钮都不会有反应，也不会降级到网页版",
+        );
+        setHint(
+          "hint-debug",
+          "✗ 工具脚本 douyinOpener.js 加载失败，请确认它和本页面在同一个目录",
+          true,
+        );
+      } else {
+        log("✓ douyinOpener.js 已加载");
+        DouyinOpener.onDebug = log;
+
+        // ============ 环境检测展示 ============
+        var envBox = $("env-box");
+        var envChecks = [
+          { key: "iOS", fn: DouyinOpener.env.isIOS },
+          { key: "Android", fn: DouyinOpener.env.isAndroid },
+          { key: "微信", fn: DouyinOpener.env.isWeChat },
+          { key: "QQ", fn: DouyinOpener.env.isQQ },
+          { key: "企微", fn: DouyinOpener.env.isWorkWeChat },
+          { key: "钉钉", fn: DouyinOpener.env.isDingTalk },
+        ];
+        envChecks.forEach(function (item) {
+          var tag = document.createElement("span");
+          tag.className = "env-tag" + (item.fn() ? " on" : "");
+          tag.textContent = item.key + (item.fn() ? " ✓" : "");
+          envBox.appendChild(tag);
+        });
+        var restrictedTag = document.createElement("span");
+        restrictedTag.className =
+          "env-tag" + (DouyinOpener.env.isRestricted() ? " on" : "");
+        restrictedTag.textContent =
+          "受限环境" + (DouyinOpener.env.isRestricted() ? " ⚠️" : "");
+        envBox.appendChild(restrictedTag);
+
+        log(
+          "环境判定：iOS=" +
+            DouyinOpener.env.isIOS() +
+            "，Android=" +
+            DouyinOpener.env.isAndroid() +
+            "，受限环境=" +
+            DouyinOpener.env.isRestricted(),
+        );
+
+        // ============ 按钮事件绑定（必须在点击的同步回调里调用） ============
+        $("btn-user").addEventListener("click", function () {
+          var r = requireUserInput();
+          if (!r) return;
+          if (r.kind === "short") {
+            log("点击「唤起 App 打开主页」，走官方短链落地页");
+            return gotoOfficialLanding(r.url);
+          }
+          log("点击「唤起 App 打开主页」，sec_uid = " + JSON.stringify(r.id));
+          DouyinOpener.openUser(r.id, appOpts());
+        });
+
+        $("btn-user-web").addEventListener("click", function () {
+          var r = requireUserInput();
+          if (!r) return;
+          if (r.kind === "short") {
+            log("点击「网页版打开主页」，走官方短链落地页");
+            return gotoOfficialLanding(r.url);
+          }
+          log("点击「网页版打开主页」，sec_uid = " + JSON.stringify(r.id));
+          DouyinOpener.openUser(r.id, appOpts({ forceWeb: true }));
+        });
+
+        $("btn-challenge").addEventListener("click", function () {
+          var id = requireStreamId("话题");
+          if (!id) return;
+          log("点击「打开话题页」，ID = " + JSON.stringify(id));
+          DouyinOpener.openCustom(
+            "challenge/detail/" + id + "?refer=web",
+            null,
+            appOpts(),
+          );
+        });
+
+        $("btn-music").addEventListener("click", function () {
+          var id = requireStreamId("音乐");
+          if (!id) return;
+          log("点击「打开音乐页」，ID = " + JSON.stringify(id));
+          DouyinOpener.openCustom(
+            "music/detail/" + id + "?refer=web",
+            null,
+            appOpts(),
+          );
+        });
+
+        $("btn-video").addEventListener("click", function () {
+          var r = requireVideoInput();
+          if (!r) return;
+          if (r.kind === "short") {
+            log("点击「唤起 App 打开视频」，走官方短链落地页");
+            return gotoOfficialLanding(r.url);
+          }
+          log("点击「唤起 App 打开视频」，视频ID = " + JSON.stringify(r.id));
+          DouyinOpener.openVideo(r.id, appOpts());
+        });
+
+        $("btn-video-web").addEventListener("click", function () {
+          var r = requireVideoInput();
+          if (!r) return;
+          if (r.kind === "short") {
+            log("点击「网页版打开视频」，走官方短链落地页");
+            return gotoOfficialLanding(r.url);
+          }
+          log("点击「网页版打开视频」，视频ID = " + JSON.stringify(r.id));
+          DouyinOpener.openVideo(r.id, appOpts({ forceWeb: true }));
+        });
+
+        $("btn-video-home").addEventListener("click", function () {
+          var r = resolveVideoInput(val("inp-video"));
+          log("点击「打开 App 推荐流」");
+          if (r.kind === "short") {
+            setHint(
+              "hint-video",
+              "推荐流不支持指定视频，要看这条视频请点「唤起 App 打开视频」",
+            );
+          } else if (r.kind === "id") {
+            setHint(
+              "hint-video",
+              "推荐流不支持指定视频，要看 " +
+                r.id +
+                " 请点「唤起 App 打开视频」",
+            );
+          }
+          DouyinOpener.openHome(appOpts());
+        });
+
+        $("btn-sequence").addEventListener("click", function () {
+          var seq = buildSequence();
+          if (!seq) return;
+          renderSequence(seq);
+          playSequence(seq.ids, appOpts());
+        });
+
+        // 先填列表时，自动把第一条有效 ID 补进「打开指定视频」；
+        // 手动改过就不覆盖，除非你又清空了它
+        var videoEl = $("inp-video");
+        $("inp-fillers").addEventListener("input", function () {
+          var first = firstListId(val("inp-fillers"));
+          var auto = videoEl.getAttribute("data-auto") === "1";
+          if (first && (auto || !val("inp-video").trim())) {
+            videoEl.value = first;
+            videoEl.setAttribute("data-auto", "1");
+            setHint("hint-video", "已自动填入列表第一条：" + first);
+            syncCode();
+          }
+          var seq = buildSequence(true);
+          if (seq) renderSequence(seq);
+        });
+
+        // 输入变化时实时重画列表，方便确认顺序
+        ["inp-video", "inp-stream"].forEach(function (id) {
+          $(id).addEventListener("input", function () {
+            if (id === "inp-video") videoEl.removeAttribute("data-auto");
+            var seq = buildSequence(true);
+            if (seq) renderSequence(seq);
+            if (id === "inp-stream") syncCode();
+          });
+        });
+
+        var initialSeq = buildSequence(true);
+        if (initialSeq) renderSequence(initialSeq);
+
+        // 从 App 切回页面时，把"上次到底发出几条"显示出来，用于定位是浏览器拦了还是抖音不排队
+        showLastRecord();
+        document.addEventListener("visibilitychange", function () {
+          if (!document.hidden) showLastRecord();
+        });
+
+        // 切换目标 App：重画代码框，方便核对实际会发出的参数
+        Array.prototype.forEach.call(
+          document.querySelectorAll('input[name="app"]'),
+          function (el) {
+            el.addEventListener("change", function () {
+              log(
+                "目标 App 切换为 " +
+                  (currentApp() === "lite" ? "抖音极速版" : "抖音"),
+              );
+              syncCode();
+              var seq = buildSequence(true);
+              if (seq) renderSequence(seq);
+            });
+          },
+        );
+
+        // 真机上极速版若不跳转，用 URL 参数临时覆盖包名/scheme，不用改代码
+        var litePkg = queryParam("litePkg");
+        var liteScheme = queryParam("liteScheme");
+        if (litePkg || liteScheme) {
+          DouyinOpener.config({
+            litePackage: litePkg || undefined,
+            liteScheme: liteScheme || undefined,
+          });
+        }
+      }
+    </script>
+  </body>
+</html>
