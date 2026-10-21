@@ -1,0 +1,10 @@
+packages:
+  - simpleweb
+  - ecmweb
+
+allowBuilds:
+  esbuild: true
+  "@parcel/watcher": true
+  "@tsparticles/engine": true
+  es5-ext: true
+  vue-demi: true

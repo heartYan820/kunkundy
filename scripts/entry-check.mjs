@@ -3,7 +3,7 @@
 //   pnpm verify:entry          # 仅检查，发现问题退出码 1
 //   pnpm fix:entry             # 自动恢复到下面的标准内容
 //
-// 为什么需要它：5173（app1）的 Vite 根目录是 pc.vue.demo/，@ 别名指向本项目 src/；
+// 为什么需要它：5173（app1）的 Vite 根目录是 kunkundy/，@ 别名指向本项目 src/；
 // 如果根 index.html 被改成加载 ecmweb/src/main.js，@/store 等会全部解析失败。
 // 同样的坑也存在于 ecmweb/index.html。
 
@@ -29,7 +29,7 @@ const APP1_OK = `<!doctype html>
   <body>
     <div id="app"></div>
     <!-- app1 入口：只引用本项目 /src/main.js。
-         千万不要改成 ecmweb/src/main.js —— 5173 的 @ 别名指向 pc.vue.demo/src，
+         千万不要改成 ecmweb/src/main.js —— 5173 的 @ 别名指向 kunkundy/src，
          加载 ecmweb 后会报 "Failed to resolve @/store/@/plugins"。
          想开 ecmweb 请用 pnpm dev:ecmweb 或 pnpm dev:all。 -->
     <script type="module" src="/src/main.js"></script>

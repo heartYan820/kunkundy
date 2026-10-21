@@ -105,7 +105,7 @@ export default defineConfig(({ command }) => ({
     },
   },
   publicDir: "../public",
-  base: command === "build" ? "/pc.vue.demo/" : "/",
+  base: command === "build" ? "/kunkundy/" : "/",
   server: {
     host: "0.0.0.0",
     port: 5176,
