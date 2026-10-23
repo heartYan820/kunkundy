@@ -54,6 +54,9 @@ jobs:
       #     这行改回 `pnpm build`，path 改回 dist）
       - name: Build
         run: pnpm -C simpleweb build
+        env:
+          # Pages 是子路径部署，构建产物资源前缀必须带仓库名
+          VITE_BASE_PATH: /kunkundy/
 
       # 6. 把构建产物上传为一个 artifact（中间产物）
       - name: Upload artifact

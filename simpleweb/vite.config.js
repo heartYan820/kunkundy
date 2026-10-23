@@ -105,7 +105,10 @@ export default defineConfig(({ command }) => ({
     },
   },
   publicDir: "../public",
-  base: command === "build" ? "/kunkundy/" : "/",
+  // 构建产物的 publicPath：
+  // - 部署到服务器根目录（Nginx）时保持默认 "/"
+  // - GitHub Pages 是子路径部署，workflow 里通过 VITE_BASE_PATH=/kunkundy/ 覆盖
+  base: command === "build" ? process.env.VITE_BASE_PATH || "/" : "/",
   server: {
     host: "0.0.0.0",
     port: 5176,

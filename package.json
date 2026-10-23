@@ -18,6 +18,8 @@
     "build:ecmweb": "pnpm -C ecmweb build",
     "build:simpleweb": "pnpm -C simpleweb build",
     "preview": "vite preview",
+    "deploy:aliyun": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/deploy-aliyun.ps1",
+    "deploy:aliyun:init": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/deploy-aliyun.ps1 -SetupNginx",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
     "tauri:dev:app1": "tauri dev",
