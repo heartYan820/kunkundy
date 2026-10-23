@@ -1,0 +1,103 @@
+# 推送到 main 分支后，自动构建 simpleweb 并部署到阿里云服务器
+# 服务器上的 nginx-kunkundy 容器挂载了 /var/www/kunkundy，替换目录内容后 reload 容器即可
+name: Deploy simpleweb to Aliyun
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # 也可以在 Actions 页面手动触发
+
+# 连续推送时只保留最新一次部署
+concurrency:
+  group: aliyun-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 与 Android / Pages workflow 保持一致的 pnpm 版本
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: simpleweb/pnpm-lock.yaml
+
+      # --ignore-workspace：simpleweb 虽然有独立 lockfile，但根目录存在
+      # pnpm-workspace.yaml，不加这个参数 pnpm 会按 workspace 成员处理
+      # 并校验根目录 lockfile，导致安装失败
+      - name: Install dependencies
+        run: pnpm -C simpleweb install --frozen-lockfile --ignore-workspace
+
+      - name: Build
+        run: pnpm -C simpleweb build
+        env:
+          # 服务器是根路径部署，资源前缀用 /
+          VITE_BASE_PATH: /
+
+      - name: Deploy to Aliyun server
+        env:
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          REMOTE_PATH: ${{ secrets.REMOTE_PATH }}
+        run: |
+          set -euo pipefail
+
+          REMOTE_PATH="${REMOTE_PATH:-/var/www/kunkundy}"
+          CONTAINER="nginx-kunkundy"
+          ARCHIVE_REMOTE="/tmp/kunkundy-dist.tar.gz"
+
+          # 配置 SSH 私钥
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "$SSH_PORT" -H "$SERVER_IP" >> ~/.ssh/known_hosts
+
+          # 打包并上传
+          tar -czf /tmp/kunkundy-dist.tar.gz -C simpleweb/dist .
+          scp -P "$SSH_PORT" -i ~/.ssh/deploy_key /tmp/kunkundy-dist.tar.gz "$SERVER_USER@$SERVER_IP:$ARCHIVE_REMOTE"
+
+          # 远端：备份 -> 解压 -> reload 容器
+          ssh -p "$SSH_PORT" -i ~/.ssh/deploy_key "$SERVER_USER@$SERVER_IP" "REMOTE_PATH=$REMOTE_PATH bash -s" <<'REMOTE_SCRIPT'
+          set -euo pipefail
+
+          REMOTE_PATH="${REMOTE_PATH:-/var/www/kunkundy}"
+          ARCHIVE="/tmp/kunkundy-dist.tar.gz"
+          CONTAINER="nginx-kunkundy"
+
+          # 旧版本打包备份，便于回滚
+          rm -f /tmp/kunkundy-backup.tar.gz
+          if [ -d "$REMOTE_PATH" ] && [ -n "$(ls -A "$REMOTE_PATH" 2>/dev/null || true)" ]; then
+            tar -czf /tmp/kunkundy-backup.tar.gz -C "$REMOTE_PATH" .
+          fi
+
+          sudo mkdir -p "$REMOTE_PATH"
+          sudo find "$REMOTE_PATH" -mindepth 1 -delete
+          sudo tar -xzf "$ARCHIVE" -C "$REMOTE_PATH"
+          sudo chown -R www-data:www-data "$REMOTE_PATH"
+          sudo chmod -R u=rwX,go=rX "$REMOTE_PATH"
+
+          if docker ps --format '{{.Names}}' | grep -qx "$CONTAINER"; then
+            docker exec "$CONTAINER" nginx -s reload
+            echo "已重载容器 $CONTAINER"
+          else
+            echo "警告：未找到运行中的容器 $CONTAINER，文件已就位但未重载 Nginx"
+          fi
+
+          echo "本机自检 HTTP 状态码：$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1/ || echo 000)"
+
+          rm -f "$ARCHIVE"
+          echo "已部署到 $REMOTE_PATH"
+          REMOTE_SCRIPT

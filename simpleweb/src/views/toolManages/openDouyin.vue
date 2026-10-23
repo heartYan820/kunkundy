@@ -6,7 +6,7 @@ const douyinUrl = `${import.meta.env.BASE_URL}html/douyin.html`;
 
 <template>
   <div>
-    <a :href="douyinUrl" target="_blank" rel="noopener">openDouyin</a>
+    <a :href="douyinUrl" target="_blank" rel="noopener">openDouyin一下</a>
   </div>
 </template>
 
